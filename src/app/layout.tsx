@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Inter, Caveat, Kalam, Dancing_Script } from 'next/font/google';
 import './globals.css';
 
@@ -36,6 +36,14 @@ export const metadata: Metadata = {
   title: 'Ghost Traveller',
   description:
     'Receive a postcard from your Ghost — a parallel version of you, writing back from somewhere in the world.',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({

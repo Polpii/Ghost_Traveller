@@ -267,7 +267,19 @@ export default function HandwritingCapture({
   // ── Full-screen mode ─────────────────────────────────────────────────────────
   if (fullScreen) {
     return (
-      <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', backgroundColor: '#f3f3f3' }}>
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: '#f3f3f3',
+          // Use dynamic viewport units when supported to avoid mobile browser-chrome bugs
+          height: '100dvh',
+          width: '100vw',
+          overflow: 'hidden',
+        }}
+      >
         {/* Top bar */}
         <div
           style={{
@@ -276,7 +288,7 @@ export default function HandwritingCapture({
             justifyContent: 'center',
             gap: 8,
             rowGap: 8,
-            padding: '10px 12px',
+            padding: '8px 10px',
             borderBottom: '1px solid #e7e5e4',
             backgroundColor: '#f3f3f3',
             flexShrink: 0,
@@ -285,7 +297,7 @@ export default function HandwritingCapture({
         >
           {onBack && (
             <button type="button" onClick={onBack}
-              style={{ backgroundColor: '#ffffff', color: '#1f1f1f', fontWeight: 500, fontSize: 14, padding: '8px 18px', borderRadius: 9999, border: '1.5px solid #6b6b6b', cursor: 'pointer' }}>
+              style={{ backgroundColor: '#ffffff', color: '#1f1f1f', fontWeight: 500, fontSize: 13, padding: '7px 14px', borderRadius: 9999, border: '1.5px solid #6b6b6b', cursor: 'pointer' }}>
               Back
             </button>
           )}
@@ -294,7 +306,7 @@ export default function HandwritingCapture({
           {clearBtn}
           {onSend && (
             <button type="button" onClick={onSend} disabled={sendDisabled}
-              style={{ backgroundColor: sendDisabled ? '#b08a8c' : BRAND, color: '#ffffff', fontWeight: 600, fontSize: 15, padding: '10px 26px', borderRadius: 9999, border: 'none', cursor: sendDisabled ? 'not-allowed' : 'pointer', boxShadow: sendDisabled ? 'none' : '0 4px 12px rgba(0,0,0,0.15)', whiteSpace: 'nowrap' }}>
+              style={{ backgroundColor: sendDisabled ? '#b08a8c' : BRAND, color: '#ffffff', fontWeight: 600, fontSize: 14, padding: '8px 22px', borderRadius: 9999, border: 'none', cursor: sendDisabled ? 'not-allowed' : 'pointer', boxShadow: sendDisabled ? 'none' : '0 4px 12px rgba(0,0,0,0.15)', whiteSpace: 'nowrap' }}>
               Send
             </button>
           )}
