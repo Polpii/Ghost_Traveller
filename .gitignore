@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# HWT / Python service — not needed for Next.js / Vercel deploy
+hwt-service/
+
+# Misc project files not part of the Next.js app
+Xiao_HW/
+GmyphPrompt.txt
+README_HWT.md
+postalCard.png
+postalCard2.jpeg
+public/postalCard1.jpg
+public/postalCard2.jpg
