@@ -115,7 +115,7 @@ function SecondaryButton({
 }
 
 export default function Home() {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(900);
   const [step, setStep] = useState<Step>('welcome');
   const [inputs, setInputs] = useState<GhostInputs>(EMPTY);
   const [handwritingFile, setHandwritingFile] = useState<File | null>(null);
