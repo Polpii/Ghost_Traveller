@@ -1,33 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ghost Traveller
 
-## Getting Started
+You answer 5 short questions. A few seconds later, a postcard arrives — written by the version of you who took the other road.
 
-First, run the development server:
+The concept: your **Ghost** is a parallel self who made a different choice at a key moment. They kept going where you stopped, stayed where you left. This app generates a handwritten postcard from them, addressed to you, referencing the exact fork in the road you describe.
+
+**[→ Try it live](https://ghost-traveller.vercel.app)**
+
+---
+
+## What it looks like
+
+<img src="docs/postcard-reference.jpg" width="520" alt="A handwritten postcard — the kind Ghost Traveller generates" />
+
+*The output is a printable B&W postcard: postmark, signal field, city coordinates, and a short handwritten message.*
+
+---
+
+## How it works
+
+1. **Where is your Ghost?** — city + a specific place they keep returning to
+2. **Who are they?** — interests, a feeling they never let go of
+3. **What do you need to hear?** — one honest thing
+4. **Your name** — for the address
+5. **The fork** — the choice they made that you didn't
+
+GPT-4o writes the message. It's short (3 lines max), grounded in the details you gave, and sounds like it was written by someone who knows you from the inside.
+
+The postcard is rendered on a canvas — printable as PNG.
+
+---
+
+## Handwriting
+
+The app uses **Cursive Ink** by default: a fine-pen cursive renderer built on [Dancing Script](https://fonts.google.com/specimen/Dancing+Script), drawn word-by-word on canvas with micro ink jitter and an ink-bleed shadow.
+
+<img src="docs/handwriting-reference.png" width="420" alt="Example of the cursive handwriting style" />
+
+No model, no server — runs entirely in the browser.
+
+---
+
+## Stack
+
+- **Next.js 15** (App Router) + **TypeScript**
+- **OpenAI GPT-4o** — message generation + optional OCR of uploaded handwriting
+- **Canvas 2D** — postcard rendering + cursive ink
+- **Google Fonts** — Dancing Script, Cormorant Garamond
+- No database, no auth
+
+---
+
+## Local setup
+
+```bash
+git clone https://github.com/Polpii/Ghost_Traveller.git
+cd Ghost_Traveller
+npm install
+```
+
+Create `.env.local`:
+
+```
+OPENAI_API_KEY=sk-...
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy
 
-## Learn More
+Push to GitHub, import on [Vercel](https://vercel.com/new). Add `OPENAI_API_KEY` as an environment variable. That's it.
 
-To learn more about Next.js, take a look at the following resources:
+The Python handwriting service (HWT / DiffusionPen) is optional — if it's not running, those engine options are automatically hidden and Cursive Ink is used instead.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 ## Deploy on Vercel
 
