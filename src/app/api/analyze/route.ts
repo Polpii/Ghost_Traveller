@@ -301,16 +301,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Image must be smaller than 10 MB.' }, { status: 400 });
     }
 
+    const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
     const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-    if (!credentialsPath) {
+    if (!credentialsJson && !credentialsPath) {
       return NextResponse.json(
-        { error: 'GOOGLE_APPLICATION_CREDENTIALS is not set.' },
+        { error: 'Google credentials are not configured.' },
         { status: 500 },
       );
     }
 
     const auth = new GoogleAuth({
-      keyFile: credentialsPath,
+      ...(credentialsJson
+        ? { credentials: JSON.parse(credentialsJson) }
+        : { keyFile: credentialsPath! }),
       scopes: ['https://www.googleapis.com/auth/cloud-platform'],
     });
     const token = (await (await auth.getClient()).getAccessToken()).token;

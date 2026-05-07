@@ -361,44 +361,16 @@ export default function Home() {
 
       {/* ── 4. Handwriting ─────────────────────────────────────────── */}
       {step === 'handwriting' && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: 720,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 20,
-            marginTop: isMobile ? 24 : 0,
-          }}
-        >
-          <h2
-            style={{
-              fontFamily: 'var(--font-serif), Georgia, serif',
-              fontSize: 'clamp(26px, 3.5vw, 38px)',
-              fontWeight: 400,
-              color: '#1a1a1a',
-              margin: 0,
-              textAlign: 'center',
-            }}
-          >
-            Please Write One Sentence by Hand.
-          </h2>
-
-          <HandwritingCapture
-            prompt={PROMPTED_SENTENCE}
-            engine={engine}
-            onEngineChange={setEngine}
-            onCapture={setHandwritingFile}
-          />
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
-            <SecondaryButton onClick={() => setStep('questions')}>Back</SecondaryButton>
-            <PrimaryButton onClick={generate} disabled={!handwritingFile}>
-              Send
-            </PrimaryButton>
-          </div>
-        </div>
+        <HandwritingCapture
+          engine={engine}
+          onEngineChange={setEngine}
+          onCapture={setHandwritingFile}
+          fullScreen
+          prompt={PROMPTED_SENTENCE}
+          onSend={generate}
+          sendDisabled={!handwritingFile}
+          onBack={() => setStep('questions')}
+        />
       )}
 
       {/* ── 5. Generating ──────────────────────────────────────────── */}
