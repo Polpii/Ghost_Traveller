@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from 'react';
 import GhostForm, { type GhostInputs } from './components/GhostForm';
 import GhostPostcard, { type GhostCardData } from './components/GhostPostcard';
 import HandwritingCapture, { type HandwritingEngine } from './components/HandwritingCapture';
+import { useIsMobile } from './hooks/useIsMobile';
 
 type Step = 'welcome' | 'intro' | 'questions' | 'handwriting' | 'generating' | 'card';
 
@@ -114,6 +115,7 @@ function SecondaryButton({
 }
 
 export default function Home() {
+  const isMobile = useIsMobile();
   const [step, setStep] = useState<Step>('welcome');
   const [inputs, setInputs] = useState<GhostInputs>(EMPTY);
   const [handwritingFile, setHandwritingFile] = useState<File | null>(null);
@@ -249,15 +251,17 @@ export default function Home() {
   return (
     <div
       style={{
-        height: '100vh',
+        minHeight: '100vh',
         width: '100vw',
-        overflow: 'hidden',
+        overflowX: 'hidden',
+        overflowY: isMobile ? 'auto' : 'hidden',
+        height: isMobile ? 'auto' : '100vh',
         backgroundColor: '#f3f3f3',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: '12px',
+        justifyContent: isMobile ? 'flex-start' : 'center',
+        padding: isMobile ? '24px 16px 40px' : '12px',
         boxSizing: 'border-box',
       }}
     >
@@ -281,7 +285,7 @@ export default function Home() {
 
       {/* ── 1. Welcome (PERFECTLY centered) ────────────────────────── */}
       {step === 'welcome' && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 80 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 48 : 80, marginTop: isMobile ? '30vh' : 0 }}>
           <h1
             style={{
               fontFamily: 'var(--font-serif), Georgia, serif',
@@ -301,7 +305,7 @@ export default function Home() {
 
       {/* ── 2. Intro ───────────────────────────────────────────────── */}
       {step === 'intro' && (
-        <div style={{ maxWidth: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 40 }}>
+        <div style={{ maxWidth: 640, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? 24 : 40, marginTop: isMobile ? 24 : 0 }}>
           <div
             style={{
               fontFamily: 'var(--font-serif), Georgia, serif',
@@ -342,8 +346,7 @@ export default function Home() {
             gap: 10,
             width: '100%',
             maxWidth: 1200,
-            height: '100%',
-            justifyContent: 'center',
+            ...(isMobile ? { paddingTop: 16 } : { height: '100%', justifyContent: 'center' }),
           }}
         >
           <GhostForm values={inputs} onChange={setInputs} />
@@ -366,6 +369,7 @@ export default function Home() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: 20,
+            marginTop: isMobile ? 24 : 0,
           }}
         >
           <h2
@@ -450,11 +454,18 @@ export default function Home() {
             gap: 16,
             width: '100%',
             maxWidth: 1280,
-            height: '100%',
-            justifyContent: 'center',
+            ...(isMobile ? { paddingTop: 16 } : { height: '100%', justifyContent: 'center' }),
           }}
         >
-          <div data-ghost-card style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <div
+            data-ghost-card
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',
+              ...(isMobile ? { overflowX: 'auto', WebkitOverflowScrolling: 'touch' } : {}),
+            }}
+          >
             <GhostPostcard data={cardData} />
           </div>
           <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>

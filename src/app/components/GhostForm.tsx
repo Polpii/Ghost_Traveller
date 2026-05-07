@@ -1,4 +1,6 @@
-'use client';
+﻿'use client';
+
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export interface GhostInputs {
   city: string;
@@ -148,7 +150,143 @@ const hintLabel: React.CSSProperties = {
   marginLeft: 4,
 };
 
+// â”€â”€ Shared card prop types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+type CardProps = { values: GhostInputs; set: (p: Partial<GhostInputs>) => void };
+type Card2Props = CardProps & { toggleInterest: (item: string) => void };
+
+function Card1({ values, set }: CardProps) {
+  return (
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={badgeStyle}>1</span>
+        <div>
+          <p style={cardTitle}>Where is your Ghost Traveller?</p>
+          <p style={cardSubtitle}>Locate them in the world, then zoom in</p>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <p style={fieldLabel}>1a. City, Country</p>
+        <input type="text" value={values.city} onChange={(e) => set({ city: e.target.value })} style={inputStyle} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <p style={fieldLabel}>1b. A specific place they keep returning to</p>
+        <input type="text" value={values.place} onChange={(e) => set({ place: e.target.value })} style={inputStyle} />
+      </div>
+    </div>
+  );
+}
+
+function Card2({ values, set, toggleInterest }: Card2Props) {
+  return (
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={badgeStyle}>2</span>
+        <div>
+          <p style={cardTitle}>Who is your Ghost?</p>
+          <p style={cardSubtitle}>Shape their personality and what they hold onto</p>
+        </div>
+      </div>
+      <div>
+        <p style={{ ...fieldLabel, marginBottom: 4 }}>
+          2a. What does your Ghost care about?<span style={hintLabel}>(pick up to 3)</span>
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {INTERESTS.map((item) => {
+            const selected = values.interests.includes(item);
+            const disabled = !selected && values.interests.length >= 3;
+            return (
+              <button key={item} type="button" onClick={() => toggleInterest(item)} disabled={disabled}
+                style={selected ? chipSelected : disabled ? chipDisabled : chipBase}>{item}</button>
+            );
+          })}
+        </div>
+        <input type="text" placeholder="Or write your ownâ€¦" value={values.customInterest}
+          onChange={(e) => set({ customInterest: e.target.value })}
+          style={{ ...inputStyle, marginTop: 6 }} />
+      </div>
+      <div>
+        <p style={{ ...fieldLabel, marginBottom: 4 }}>
+          2b. A feeling she never let go of<span style={hintLabel}>(pick one)</span>
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {SENSATIONS.map((item) => (
+            <button key={item} type="button" onClick={() => set({ sensation: item, customSensation: '' })}
+              style={values.sensation === item ? chipSelected : chipBase}>{item}</button>
+          ))}
+        </div>
+        <input type="text" placeholder="Or write your ownâ€¦" value={values.customSensation}
+          onChange={(e) => set({ customSensation: e.target.value, sensation: e.target.value ? '' : values.sensation })}
+          style={{ ...inputStyle, marginTop: 6 }} />
+      </div>
+    </div>
+  );
+}
+
+function Card3({ values, set }: CardProps) {
+  return (
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={badgeStyle}>3</span>
+        <div>
+          <p style={cardTitle}>What do you need to hear right now?</p>
+          <p style={cardSubtitle}>Your Ghost has something to tell you</p>
+        </div>
+      </div>
+      <p style={fieldLabel}>What would help you most today?<span style={hintLabel}>(pick one)</span></p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {NEEDS.map((item) => (
+          <button key={item} type="button" onClick={() => set({ need: item, customNeed: '' })}
+            style={values.need === item ? chipSelected : chipBase}>{item}</button>
+        ))}
+      </div>
+      <input type="text" placeholder="Or write your ownâ€¦" value={values.customNeed}
+        onChange={(e) => set({ customNeed: e.target.value, need: e.target.value ? '' : values.need })}
+        style={inputStyle} />
+    </div>
+  );
+}
+
+function Card4({ values, set }: CardProps) {
+  return (
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={badgeStyle}>4</span>
+        <div>
+          <p style={cardTitle}>One last thing</p>
+          <p style={cardSubtitle}>For the postcard address</p>
+        </div>
+      </div>
+      <p style={fieldLabel}>Please type your name</p>
+      <input type="text" value={values.name} onChange={(e) => set({ name: e.target.value })} style={inputStyle} />
+    </div>
+  );
+}
+
+function Card5({ values, set }: CardProps) {
+  return (
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={badgeStyle}>5</span>
+        <div>
+          <p style={cardTitle}>What choice did they make that you didn&apos;t?</p>
+          <p style={cardSubtitle}>The fork in the road where your paths split</p>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {DIVERGENCES.map((item) => (
+          <button key={item} type="button" onClick={() => set({ divergence: item, customDivergence: '' })}
+            style={values.divergence === item ? chipSelected : chipBase}>{item}</button>
+        ))}
+      </div>
+      <input type="text" placeholder="Or write your ownâ€¦" value={values.customDivergence}
+        onChange={(e) => set({ customDivergence: e.target.value, divergence: e.target.value ? '' : values.divergence })}
+        style={inputStyle} />
+    </div>
+  );
+}
+
 export default function GhostForm({ values, onChange }: GhostFormProps) {
+  const isMobile = useIsMobile();
   const set = (patch: Partial<GhostInputs>) => onChange({ ...values, ...patch });
 
   const toggleInterest = (item: string) => {
@@ -160,213 +298,32 @@ export default function GhostForm({ values, onChange }: GhostFormProps) {
     }
   };
 
+  // On mobile: single column, cards in order 1â†’2â†’3â†’4â†’5
+  // On desktop: two columns (left: 1+3+4, right: 2+5)
+  if (isMobile) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
+        <Card1 values={values} set={set} />
+        <Card2 values={values} set={set} toggleInterest={toggleInterest} />
+        <Card3 values={values} set={set} />
+        <Card4 values={values} set={set} />
+        <Card5 values={values} set={set} />
+      </div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 10,
-        width: '100%',
-      }}
-    >
-      {/* ── Left column: cards 1 + 3 + 4 ───────────────────────── */}
+    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 10, width: '100%' }}>
+      {/* Left column: 1 + 3 + 4 */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
-        {/* ── Card 1 — Location ─────────────────────────── */}
-        <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={badgeStyle}>1</span>
-          <div>
-            <p style={cardTitle}>Where is your Ghost Traveller?</p>
-            <p style={cardSubtitle}>Locate them in the world, then zoom in</p>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <p style={fieldLabel}>1a. City, Country</p>
-          <input
-            type="text"
-            value={values.city}
-            onChange={(e) => set({ city: e.target.value })}
-            style={inputStyle}
-          />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <p style={fieldLabel}>1b. A specific place they keep returning to</p>
-          <input
-            type="text"
-            value={values.place}
-            onChange={(e) => set({ place: e.target.value })}
-            style={inputStyle}
-          />
-        </div>
+        <Card1 values={values} set={set} />
+        <Card3 values={values} set={set} />
+        <Card4 values={values} set={set} />
       </div>
-
-      {/* ── Card 3 — Need ─────────────────────────────── */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={badgeStyle}>3</span>
-          <div>
-            <p style={cardTitle}>What do you need to hear right now?</p>
-            <p style={cardSubtitle}>Your Ghost has something to tell you</p>
-          </div>
-        </div>
-        <p style={fieldLabel}>
-          What would help you most today?
-          <span style={hintLabel}>(pick one)</span>
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {NEEDS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => set({ need: item, customNeed: '' })}
-              style={values.need === item ? chipSelected : chipBase}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-        <input
-          type="text"
-          placeholder="Or write your own…"
-          value={values.customNeed}
-          onChange={(e) =>
-            set({ customNeed: e.target.value, need: e.target.value ? '' : values.need })
-          }
-          style={inputStyle}
-        />
-      </div>
-
-      {/* ── Card 4 — Name ─────────────────────────────── */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={badgeStyle}>4</span>
-          <div>
-            <p style={cardTitle}>One last thing</p>
-            <p style={cardSubtitle}>For the postcard address</p>
-          </div>
-        </div>
-        <p style={fieldLabel}>Please type your name</p>
-        <input
-          type="text"
-          value={values.name}
-          onChange={(e) => set({ name: e.target.value })}
-          style={inputStyle}
-        />
-      </div>
-      </div>
-      {/* ── Right column: card 2 ───────────────────────────────── */}
+      {/* Right column: 2 + 5 */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
-
-      {/* ── Card 2 — Personality ──────────────────────── */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={badgeStyle}>2</span>
-          <div>
-            <p style={cardTitle}>Who is your Ghost?</p>
-            <p style={cardSubtitle}>Shape their personality and what they hold onto</p>
-          </div>
-        </div>
-
-        <div>
-          <p style={{ ...fieldLabel, marginBottom: 4 }}>
-            2a. What does your Ghost care about?
-            <span style={hintLabel}>(pick up to 3)</span>
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {INTERESTS.map((item) => {
-              const selected = values.interests.includes(item);
-              const disabled = !selected && values.interests.length >= 3;
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => toggleInterest(item)}
-                  disabled={disabled}
-                  style={selected ? chipSelected : disabled ? chipDisabled : chipBase}
-                >
-                  {item}
-                </button>
-              );
-            })}
-          </div>
-          <input
-            type="text"
-            placeholder="Or write your own…"
-            value={values.customInterest}
-            onChange={(e) => set({ customInterest: e.target.value })}
-            style={{ ...inputStyle, marginTop: 6 }}
-          />
-        </div>
-
-        <div>
-          <p style={{ ...fieldLabel, marginBottom: 4 }}>
-            2b. A feeling she never let go of
-            <span style={hintLabel}>(pick one)</span>
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {SENSATIONS.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => set({ sensation: item, customSensation: '' })}
-                style={values.sensation === item ? chipSelected : chipBase}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <input
-            type="text"
-            placeholder="Or write your own…"
-            value={values.customSensation}
-            onChange={(e) =>
-              set({
-                customSensation: e.target.value,
-                sensation: e.target.value ? '' : values.sensation,
-              })
-            }
-            style={{ ...inputStyle, marginTop: 6 }}
-          />
-        </div>
-      </div>
-
-      {/* ── Card 5 — Divergence (parallel-universe fork) ───────── */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={badgeStyle}>5</span>
-          <div>
-            <p style={cardTitle}>What choice did they make that you didn’t?</p>
-            <p style={cardSubtitle}>The fork in the road where your paths split</p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {DIVERGENCES.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => set({ divergence: item, customDivergence: '' })}
-              style={values.divergence === item ? chipSelected : chipBase}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-        <input
-          type="text"
-          placeholder="Or write your own…"
-          value={values.customDivergence}
-          onChange={(e) =>
-            set({
-              customDivergence: e.target.value,
-              divergence: e.target.value ? '' : values.divergence,
-            })
-          }
-          style={inputStyle}
-        />
-      </div>
+        <Card2 values={values} set={set} toggleInterest={toggleInterest} />
+        <Card5 values={values} set={set} />
       </div>
     </div>
   );

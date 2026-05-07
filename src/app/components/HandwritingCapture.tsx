@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export type HandwritingEngine = 'hwt' | 'diffusionpen' | 'cursive';
 
@@ -18,7 +19,6 @@ const ALL_ENGINES: { id: HandwritingEngine; label: string; desc: string }[] = [
 ];
 
 const BRAND = '#7c1418';
-const CANVAS_HEIGHT = 160;
 
 function dataUrlToFile(dataUrl: string, filename: string): File {
   const [meta, base64] = dataUrl.split(',');
@@ -43,6 +43,8 @@ export default function HandwritingCapture({
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
+  const isMobile = useIsMobile();
+  const canvasHeight = isMobile ? 200 : 160;
   const [hasContent, setHasContent] = useState(false);
   const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
   const [hwtAvailable, setHwtAvailable] = useState(false);
@@ -238,7 +240,7 @@ export default function HandwritingCapture({
       <div
         style={{
           position: 'relative',
-          height: CANVAS_HEIGHT,
+          height: canvasHeight,
           width: '100%',
           borderRadius: 12,
           border: '2px dashed #d6d3d1',
