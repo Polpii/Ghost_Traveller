@@ -10,6 +10,11 @@ interface Props {
   prompt?: string;
   engine: HandwritingEngine;
   onEngineChange: (e: HandwritingEngine) => void;
+  /** Full-screen mode: top bar + canvas filling remaining viewport */
+  fullScreen?: boolean;
+  onSend?: () => void;
+  sendDisabled?: boolean;
+  onBack?: () => void;
 }
 
 const ALL_ENGINES: { id: HandwritingEngine; label: string; desc: string }[] = [
@@ -35,6 +40,10 @@ export default function HandwritingCapture({
   prompt,
   engine,
   onEngineChange,
+  fullScreen = false,
+  onSend,
+  sendDisabled,
+  onBack,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,9 +66,7 @@ export default function HandwritingCapture({
       .catch(() => setHwtAvailable(false));
   }, []);
 
-  const engines = hwtAvailable
-    ? ALL_ENGINES
-    : ALL_ENGINES.filter((e) => e.id === 'cursive');
+
 
   // Initialize the canvas: backing store sized to CSS box × DPR, line styles set
   const initCanvas = () => {
@@ -190,6 +197,116 @@ export default function HandwritingCapture({
     reader.readAsDataURL(file);
   };
 
+  // ── Shared sub-elements ─────────────────────────────────────────────────────
+  // Always show all engines; disable those that need the HWT service when it's down
+  const engineSelector = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <label htmlFor="engine" style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#78716c', whiteSpace: 'nowrap' }}>
+        Engine
+      </label>
+      <select
+        id="engine"
+        value={engine}
+        onChange={(e) => onEngineChange(e.target.value as HandwritingEngine)}
+        style={{ borderRadius: 8, border: '1px solid #d6d3d1', backgroundColor: '#ffffff', padding: '6px 10px', fontSize: 13, color: '#1c1917', outline: 'none', maxWidth: '60vw' }}
+      >
+        {ALL_ENGINES.map((e) => {
+          const disabled = !hwtAvailable && e.id !== 'cursive';
+          return (
+            <option key={e.id} value={e.id} disabled={disabled}>
+              {e.label}{disabled ? ' (offline)' : ''}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+
+  const uploadBtn = (
+    <button type="button" onClick={() => fileInputRef.current?.click()}
+      style={{ backgroundColor: BRAND, color: '#ffffff', fontWeight: 500, fontSize: 13, padding: '7px 18px', borderRadius: 9999, border: 'none', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.12)', whiteSpace: 'nowrap' }}>
+      Upload an image
+    </button>
+  );
+
+  const clearBtn = hasContent ? (
+    <button type="button" onClick={clear}
+      style={{ backgroundColor: '#ffffff', color: '#1f1f1f', fontWeight: 500, fontSize: 13, padding: '7px 18px', borderRadius: 9999, border: '1.5px solid #6b6b6b', cursor: 'pointer' }}>
+      Clear
+    </button>
+  ) : null;
+
+  const fileInput = (
+    <input ref={fileInputRef} type="file" accept="image/*" onChange={onUpload} style={{ display: 'none' }} />
+  );
+
+  const canvasArea = (fill: boolean) => (
+    <div style={{ position: 'relative', ...(fill ? { flex: 1 } : { height: canvasHeight }), width: '100%', borderRadius: fill ? 0 : 12, border: fill ? 'none' : '2px dashed #d6d3d1', backgroundColor: '#ffffff', overflow: 'hidden' }}>
+      <canvas
+        ref={canvasRef}
+        onPointerDown={startDraw}
+        onPointerMove={draw}
+        onPointerUp={endDraw}
+        onPointerLeave={endDraw}
+        onPointerCancel={endDraw}
+        style={{ display: 'block', width: '100%', height: '100%', cursor: uploadedPreview ? 'default' : 'crosshair', touchAction: 'none', userSelect: 'none' }}
+      />
+      {uploadedPreview && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={uploadedPreview} alt="Your handwriting"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#ffffff', pointerEvents: 'none' }} />
+      )}
+      {!hasContent && !uploadedPreview && (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a8a29e', fontSize: 16, pointerEvents: 'none', userSelect: 'none', textAlign: 'center', padding: '0 16px' }}>
+          Please Write One Sentence by Hand
+        </div>
+      )}
+    </div>
+  );
+
+  // ── Full-screen mode ─────────────────────────────────────────────────────────
+  if (fullScreen) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', backgroundColor: '#f3f3f3' }}>
+        {/* Top bar */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            rowGap: 8,
+            padding: '10px 12px',
+            borderBottom: '1px solid #e7e5e4',
+            backgroundColor: '#f3f3f3',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
+          {onBack && (
+            <button type="button" onClick={onBack}
+              style={{ backgroundColor: '#ffffff', color: '#1f1f1f', fontWeight: 500, fontSize: 14, padding: '8px 18px', borderRadius: 9999, border: '1.5px solid #6b6b6b', cursor: 'pointer' }}>
+              Back
+            </button>
+          )}
+          {engineSelector}
+          {uploadBtn}
+          {clearBtn}
+          {onSend && (
+            <button type="button" onClick={onSend} disabled={sendDisabled}
+              style={{ backgroundColor: sendDisabled ? '#b08a8c' : BRAND, color: '#ffffff', fontWeight: 600, fontSize: 15, padding: '10px 26px', borderRadius: 9999, border: 'none', cursor: sendDisabled ? 'not-allowed' : 'pointer', boxShadow: sendDisabled ? 'none' : '0 4px 12px rgba(0,0,0,0.15)', whiteSpace: 'nowrap' }}>
+              Send
+            </button>
+          )}
+          {fileInput}
+        </div>
+        {/* Canvas fills remaining space */}
+        {canvasArea(true)}
+      </div>
+    );
+  }
+
+  // ── Normal (embedded) mode ───────────────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 640 }}>
       {prompt && (
@@ -198,150 +315,12 @@ export default function HandwritingCapture({
           <span style={{ fontStyle: 'italic' }}>{prompt}</span>
         </p>
       )}
-
-      {/* Engine selector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <label
-          htmlFor="engine"
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            color: '#78716c',
-          }}
-        >
-          Engine
-        </label>
-        <select
-          id="engine"
-          value={engine}
-          onChange={(e) => onEngineChange(e.target.value as HandwritingEngine)}
-          style={{
-            flex: 1,
-            borderRadius: 8,
-            border: '1px solid #d6d3d1',
-            backgroundColor: '#ffffff',
-            padding: '6px 10px',
-            fontSize: 13,
-            color: '#1c1917',
-            outline: 'none',
-          }}
-        >
-          {engines.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.label} — {e.desc}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Drawing area — fixed-size frame; overlays an uploaded image inside */}
-      <div
-        style={{
-          position: 'relative',
-          height: canvasHeight,
-          width: '100%',
-          borderRadius: 12,
-          border: '2px dashed #d6d3d1',
-          backgroundColor: '#ffffff',
-          overflow: 'hidden',
-        }}
-      >
-        <canvas
-          ref={canvasRef}
-          onPointerDown={startDraw}
-          onPointerMove={draw}
-          onPointerUp={endDraw}
-          onPointerLeave={endDraw}
-          onPointerCancel={endDraw}
-          style={{
-            display: 'block',
-            width: '100%',
-            height: '100%',
-            cursor: uploadedPreview ? 'default' : 'crosshair',
-            touchAction: 'none',
-            userSelect: 'none',
-          }}
-        />
-        {uploadedPreview && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={uploadedPreview}
-            alt="Your handwriting"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              backgroundColor: '#ffffff',
-              pointerEvents: 'none',
-            }}
-          />
-        )}
-        {!hasContent && !uploadedPreview && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#a8a29e',
-              fontSize: 14,
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          >
-            Please Write One Sentence by Hand
-          </div>
-        )}
-      </div>
-
+      {engineSelector}
+      {canvasArea(false)}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            backgroundColor: BRAND,
-            color: '#ffffff',
-            fontWeight: 500,
-            fontSize: 13,
-            padding: '7px 18px',
-            borderRadius: 9999,
-            border: 'none',
-            cursor: 'pointer',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-          }}
-        >
-          Upload an image
-        </button>
-        {hasContent && (
-          <button
-            type="button"
-            onClick={clear}
-            style={{
-              backgroundColor: '#ffffff',
-              color: '#1f1f1f',
-              fontWeight: 500,
-              fontSize: 13,
-              padding: '7px 18px',
-              borderRadius: 9999,
-              border: '1.5px solid #6b6b6b',
-              cursor: 'pointer',
-            }}
-          >
-            Clear
-          </button>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={onUpload}
-          style={{ display: 'none' }}
-        />
+        {uploadBtn}
+        {clearBtn}
+        {fileInput}
       </div>
     </div>
   );

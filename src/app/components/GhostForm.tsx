@@ -200,9 +200,6 @@ function Card2({ values, set, toggleInterest }: Card2Props) {
             );
           })}
         </div>
-        <input type="text" placeholder="Or write your ownâ€¦" value={values.customInterest}
-          onChange={(e) => set({ customInterest: e.target.value })}
-          style={{ ...inputStyle, marginTop: 6 }} />
       </div>
       <div>
         <p style={{ ...fieldLabel, marginBottom: 4 }}>
@@ -214,9 +211,6 @@ function Card2({ values, set, toggleInterest }: Card2Props) {
               style={values.sensation === item ? chipSelected : chipBase}>{item}</button>
           ))}
         </div>
-        <input type="text" placeholder="Or write your ownâ€¦" value={values.customSensation}
-          onChange={(e) => set({ customSensation: e.target.value, sensation: e.target.value ? '' : values.sensation })}
-          style={{ ...inputStyle, marginTop: 6 }} />
       </div>
     </div>
   );
@@ -239,9 +233,6 @@ function Card3({ values, set }: CardProps) {
             style={values.need === item ? chipSelected : chipBase}>{item}</button>
         ))}
       </div>
-      <input type="text" placeholder="Or write your ownâ€¦" value={values.customNeed}
-        onChange={(e) => set({ customNeed: e.target.value, need: e.target.value ? '' : values.need })}
-        style={inputStyle} />
     </div>
   );
 }
@@ -250,7 +241,7 @@ function Card4({ values, set }: CardProps) {
   return (
     <div style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={badgeStyle}>4</span>
+        <span style={badgeStyle}>5</span>
         <div>
           <p style={cardTitle}>One last thing</p>
           <p style={cardSubtitle}>For the postcard address</p>
@@ -266,7 +257,7 @@ function Card5({ values, set }: CardProps) {
   return (
     <div style={cardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={badgeStyle}>5</span>
+        <span style={badgeStyle}>4</span>
         <div>
           <p style={cardTitle}>What choice did they make that you didn&apos;t?</p>
           <p style={cardSubtitle}>The fork in the road where your paths split</p>
@@ -278,15 +269,12 @@ function Card5({ values, set }: CardProps) {
             style={values.divergence === item ? chipSelected : chipBase}>{item}</button>
         ))}
       </div>
-      <input type="text" placeholder="Or write your ownâ€¦" value={values.customDivergence}
-        onChange={(e) => set({ customDivergence: e.target.value, divergence: e.target.value ? '' : values.divergence })}
-        style={inputStyle} />
     </div>
   );
 }
 
 export default function GhostForm({ values, onChange }: GhostFormProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(900);
   const set = (patch: Partial<GhostInputs>) => onChange({ ...values, ...patch });
 
   const toggleInterest = (item: string) => {
@@ -306,21 +294,21 @@ export default function GhostForm({ values, onChange }: GhostFormProps) {
         <Card1 values={values} set={set} />
         <Card2 values={values} set={set} toggleInterest={toggleInterest} />
         <Card3 values={values} set={set} />
-        <Card4 values={values} set={set} />
         <Card5 values={values} set={set} />
+        <Card4 values={values} set={set} />
       </div>
     );
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 10, width: '100%' }}>
-      {/* Left column: 1 + 3 + 4 */}
+      {/* Left column: 1 + 3 + 5 (name) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
         <Card1 values={values} set={set} />
         <Card3 values={values} set={set} />
         <Card4 values={values} set={set} />
       </div>
-      {/* Right column: 2 + 5 */}
+      {/* Right column: 2 + 4 (divergence) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
         <Card2 values={values} set={set} toggleInterest={toggleInterest} />
         <Card5 values={values} set={set} />
