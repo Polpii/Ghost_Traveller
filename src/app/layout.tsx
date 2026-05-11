@@ -1,11 +1,24 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Inter, Caveat, Kalam, Dancing_Script } from 'next/font/google';
+import { Cormorant_Garamond, Inter, Caveat, Kalam, Dancing_Script, Playfair_Display, Klee_One } from 'next/font/google';
 import './globals.css';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
   variable: '--font-serif',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-display',
+});
+
+const klee = Klee_One({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  variable: '--font-hand',
 });
 
 const inter = Inter({
@@ -54,9 +67,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${inter.variable} ${caveat.variable} ${kalam.variable} ${dancingScript.variable}`}
+      className={`${cormorant.variable} ${playfair.variable} ${klee.variable} ${inter.variable} ${caveat.variable} ${kalam.variable} ${dancingScript.variable}`}
     >
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

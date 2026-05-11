@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ghost Traveller — Postcards from a parallel universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Klee+One&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:#E8D5B7;font-family:'Klee One',cursive;}
+
+/* ── SCREEN SYSTEM ── */
+.screen{display:none;width:100%;min-height:100vh;position:relative;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ── WAX SEAL (shared) ── */
+.wax{
+  border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,#c0382b 0%,#8B1A1A 52%,#4a0e0e 100%);
+  border:2px solid #6e1414;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:inset 0 2px 5px rgba(255,180,160,.15),inset 0 -2px 7px rgba(0,0,0,.45),0 3px 12px rgba(0,0,0,.25);
+  transition:transform .15s;
+  position:relative;
+}
+.wax:hover{transform:scale(1.07);}
+.wax::before{content:'';position:absolute;width:78%;height:78%;border-radius:50%;border:1px solid rgba(255,190,170,.1);}
+.wax span{font-family:'Klee One',cursive;color:#f5dfc8;text-align:center;line-height:1.5;letter-spacing:.04em;position:relative;z-index:1;opacity:.9;}
+
+/* ══════════════════════════════
+   SCREEN 1 — WELCOME
+══════════════════════════════ */
+#s1{
+  background:#EAD9BC;
+  align-items:center;justify-content:center;
+}
+.s1-map{position:absolute;inset:0;width:100%;height:100%;opacity:.15;}
+.s1-hero{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  align-items:center;text-align:center;
+}
+.s1-eyebrow{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;letter-spacing:.32em;
+  color:#9B6E3A;text-transform:uppercase;font-weight:300;
+  margin-bottom:16px;
+}
+.s1-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(42px,6vw,64px);font-weight:400;
+  color:#3A1A06;letter-spacing:.08em;
+  text-transform:uppercase;line-height:1.05;
+  margin-bottom:18px;
+}
+.s1-subtitle{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;color:#7A5028;
+  font-style:italic;font-weight:300;letter-spacing:.14em;
+}
+.s1-wax{
+  position:absolute;bottom:32px;right:40px;
+  width:82px;height:82px;
+}
+.s1-wax span{font-size:9.5px;}
+
+/* ══════════════════════════════
+   SCREEN 2 — POSTCARD INTRO
+══════════════════════════════ */
+#s2{
+  background:#E8D5B7;
+  align-items:center;justify-content:center;
+  padding:40px;
+}
+.postcard{
+  width:min(660px,100%);
+  background:#F4ECD8;
+  border:1px solid rgba(155,110,58,.15);
+  box-shadow:0 4px 40px rgba(60,20,0,.11);
+  padding:48px 64px 48px;
+  position:relative;
+  display:flex;flex-direction:column;
+  align-items:center;text-align:center;
+}
+.pc-label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:9px;letter-spacing:.3em;
+  color:#B8905A;text-transform:uppercase;
+  opacity:.6;margin-bottom:32px;
+}
+.pc-text{font-family:'Klee One',cursive;font-size:13px;color:#6B4422;opacity:.82;width:100%;}
+.pc-line{
+  display:block;
+  border-bottom:1px solid rgba(155,110,58,.22);
+  padding-bottom:10px;margin-bottom:10px;
+  line-height:1.5;text-align:center;
+}
+.pc-line:last-child{border-bottom:1px solid rgba(155,110,58,.22);margin-bottom:0;}
+.pc-sign{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;font-style:italic;
+  color:#9B6E3A;opacity:.7;
+  letter-spacing:.08em;
+  margin-top:20px;margin-bottom:44px;
+}
+.pc-wax{
+  position:absolute;bottom:20px;right:24px;
+  width:64px;height:64px;
+}
+.pc-wax span{font-size:7px;}
+
+/* ══════════════════════════════
+   SCREENS 3–6 — QUESTIONS
+══════════════════════════════ */
+#s3,#s4,#s5,#s6{
+  background:#EAD9BC;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:48px 40px;
+}
+.q-wrap{width:min(560px,100%);display:flex;flex-direction:column;gap:0;}
+.q-progress{display:flex;gap:8px;margin-bottom:36px;}
+.q-dot{width:32px;height:2px;background:rgba(92,46,10,.2);border-radius:2px;transition:background .3s;}
+.q-dot.done{background:#9B6E3A;}
+.q-dot.active{background:#3A1A06;}
+.q-num{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;letter-spacing:.22em;
+  color:#9B6E3A;text-transform:uppercase;
+  margin-bottom:10px;
+}
+.q-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(22px,3vw,30px);font-weight:400;
+  color:#3A1A06;margin-bottom:6px;line-height:1.25;
+}
+.q-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;color:#9B6E3A;
+  font-style:italic;margin-bottom:28px;
+}
+/* input */
+.q-field{margin-bottom:22px;}
+.q-field label{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:10px;letter-spacing:.22em;
+  color:#9B6E3A;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.q-field input{
+  width:100%;
+  background:transparent;
+  border:none;border-bottom:1px solid rgba(155,110,58,.4);
+  padding:8px 2px;
+  font-family:'Klee One',cursive;
+  font-size:14px;color:#3A1A06;
+  outline:none;
+}
+.q-field input::placeholder{color:#B8905A;font-style:italic;}
+.q-field input:focus{border-bottom-color:#3A1A06;}
+/* pills */
+.q-hint{
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;letter-spacing:.14em;
+  color:#9B6E3A;text-transform:uppercase;
+  margin-bottom:12px;opacity:.8;
+}
+.q-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.q-pill{
+  font-family:'Klee One',cursive;
+  font-size:13px;color:#5C2E0A;
+  border:1px solid rgba(155,110,58,.45);
+  padding:7px 16px;border-radius:20px;
+  cursor:pointer;background:transparent;
+  transition:all .18s;
+}
+.q-pill:hover{background:rgba(92,46,10,.07);}
+.q-pill.sel{background:#5C2E0A;color:#F5E8D0;border-color:#5C2E0A;}
+/* next */
+.q-next{
+  margin-top:28px;display:flex;justify-content:flex-end;
+}
+.next-btn{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;letter-spacing:.14em;
+  color:#3A1A06;text-transform:uppercase;
+  background:transparent;border:none;
+  border-bottom:1px solid rgba(155,110,58,.5);
+  padding:6px 0;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:gap .2s;
+}
+.next-btn:hover{gap:14px;}
+
+/* ══════════════════════════════
+   SCREEN 7 — LOADING
+══════════════════════════════ */
+#s7{
+  background:#EAD9BC;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:24px;
+}
+.s7-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:400;
+  color:#3A1A06;letter-spacing:.04em;
+  text-align:center;
+}
+.s7-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;color:#9B6E3A;
+  font-style:italic;text-align:center;
+}
+.dots{display:flex;gap:10px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#9B6E3A;opacity:.3;animation:pulse 1.4s ease-in-out infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes pulse{0%,80%,100%{opacity:.3;transform:scale(.8);}40%{opacity:1;transform:scale(1.2);}}
+
+/* ══════════════════════════════
+   SCREEN 8 — OUTPUT POSTCARD
+══════════════════════════════ */
+#s8{
+  background:#EAD9BC;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px;gap:24px;
+}
+.s8-label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:10px;letter-spacing:.3em;
+  color:#9B6E3A;text-transform:uppercase;
+  opacity:.65;
+}
+.out-postcard{
+  width:min(680px,100%);
+  background:#F4ECD8;
+  border:1px solid rgba(155,110,58,.15);
+  box-shadow:0 4px 40px rgba(60,20,0,.12);
+  display:flex;min-height:320px;
+  position:relative;
+}
+.out-left{
+  flex:0 0 42%;
+  background:linear-gradient(150deg,#6B8E6B,#3A5A42);
+  position:relative;overflow:hidden;
+  display:flex;align-items:flex-end;padding:16px;
+}
+.out-scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.out-loc{
+  font-family:'Cormorant Garamond',serif;
+  font-size:10px;letter-spacing:.15em;
+  color:rgba(244,236,216,.75);
+  text-transform:uppercase;
+  position:relative;z-index:1;
+}
+.out-right{
+  flex:1;padding:22px 24px;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+.out-stamps{position:absolute;top:16px;right:18px;display:flex;gap:5px;}
+.out-stamp-c{
+  width:40px;height:40px;border-radius:50%;
+  border:1.5px dashed rgba(155,110,58,.5);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;
+  font-size:6.5px;letter-spacing:.08em;color:#9B6E3A;text-align:center;line-height:1.4;
+}
+.out-from{
+  font-family:'Cormorant Garamond',serif;
+  font-size:9.5px;letter-spacing:.14em;
+  color:#9B6E3A;text-transform:uppercase;
+  margin-top:2px;margin-bottom:8px;opacity:.7;
+}
+.out-msg{
+  font-family:'Klee One',cursive;
+  font-size:12.5px;color:#3A1A06;
+  line-height:1.85;flex:1;
+  padding-right:52px;
+}
+.out-addr{
+  margin-top:12px;padding-top:10px;
+  border-top:1px solid rgba(155,110,58,.2);
+}
+.out-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;color:#3A1A06;font-style:italic;
+  margin-bottom:6px;
+}
+.out-lines{display:flex;flex-direction:column;gap:7px;}
+.out-line{height:1px;background:rgba(155,110,58,.25);}
+.s8-actions{display:flex;gap:12px;}
+.btn-print{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:#F5E8D0;background:#3A1A06;
+  border:none;padding:11px 28px;cursor:pointer;
+  transition:background .2s;
+}
+.btn-print:hover{background:#5C2E0A;}
+.btn-restart{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:#3A1A06;background:transparent;
+  border:1px solid rgba(155,110,58,.5);
+  padding:11px 28px;cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ S1: WELCOME ══ -->
+<div class="screen active" id="s1">
+  <svg class="s1-map" viewBox="0 0 700 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#6B3A10" fill="none">
+      <line x1="350" y1="260" x2="20" y2="30" stroke-width="1.1"/>
+      <line x1="350" y1="260" x2="130" y2="5" stroke-width=".9"/>
+      <line x1="350" y1="260" x2="260" y2="0" stroke-width=".8"/>
+      <line x1="350" y1="260" x2="400" y2="0" stroke-width=".8"/>
+      <line x1="350" y1="260" x2="540" y2="10" stroke-width=".9"/>
+      <line x1="350" y1="260" x2="660" y2="60" stroke-width="1"/>
+      <line x1="350" y1="260" x2="700" y2="180" stroke-width="1.1"/>
+      <line x1="350" y1="260" x2="700" y2="320" stroke-width="1"/>
+      <line x1="350" y1="260" x2="660" y2="440" stroke-width=".9"/>
+      <line x1="350" y1="260" x2="540" y2="510" stroke-width=".9"/>
+      <line x1="350" y1="260" x2="380" y2="520" stroke-width=".8"/>
+      <line x1="350" y1="260" x2="220" y2="515" stroke-width=".9"/>
+      <line x1="350" y1="260" x2="80" y2="490" stroke-width=".9"/>
+      <line x1="350" y1="260" x2="10" y2="400" stroke-width="1"/>
+      <line x1="350" y1="260" x2="0" y2="260" stroke-width="1.1"/>
+      <line x1="350" y1="260" x2="10" y2="130" stroke-width="1"/>
+      <g stroke-dasharray="3,5" stroke-width=".65" opacity=".8">
+        <line x1="240" y1="155" x2="185" y2="108"/><line x1="185" y1="190" x2="118" y2="182"/>
+        <line x1="175" y1="235" x2="105" y2="248"/><line x1="185" y1="285" x2="108" y2="310"/>
+        <line x1="210" y1="350" x2="148" y2="395"/><line x1="275" y1="410" x2="240" y2="462"/>
+        <line x1="360" y1="430" x2="360" y2="488"/><line x1="430" y1="395" x2="478" y2="448"/>
+        <line x1="490" y1="330" x2="562" y2="360"/><line x1="510" y1="248" x2="584" y2="228"/>
+        <line x1="472" y1="172" x2="528" y2="130"/><line x1="415" y1="118" x2="448" y2="68"/>
+        <line x1="348" y1="96" x2="348" y2="44"/><line x1="278" y1="118" x2="252" y2="66"/>
+        <line x1="218" y1="152" x2="180" y2="100"/>
+      </g>
+      <circle cx="350" cy="260" r="5" fill="#5C2E0A" stroke="none"/>
+      <circle cx="350" cy="260" r="12" stroke-width=".8" stroke-dasharray="2,4" opacity=".5"/>
+    </g>
+  </svg>
+  <div class="s1-hero">
+    <div class="s1-eyebrow">Postcards from elsewhere</div>
+    <div class="s1-title">Ghost<br>Traveller</div>
+    <div class="s1-subtitle">Postcards from a parallel universe</div>
+  </div>
+  <div class="wax s1-wax" onclick="goTo('s2')">
+    <span>Start Your<br>Journey</span>
+  </div>
+</div>
+
+<!-- ══ S2: POSTCARD INTRO ══ -->
+<div class="screen" id="s2">
+  <div class="postcard">
+    <div class="pc-label">This space for writing messages</div>
+    <div class="pc-text">
+      <span class="pc-line">Your Ghost Traveller didn't just keep your memories,</span>
+      <span class="pc-line">but kept growing.</span>
+      <span class="pc-line">They have continued along the path you once left behind,</span>
+      <span class="pc-line">noticing new details, collecting small moments,</span>
+      <span class="pc-line">and carrying the feelings you may have forgotten.</span>
+      <span class="pc-line">Now they are writing back,</span>
+      <span class="pc-line">to remind you of something you might need to hear right now.</span>
+    </div>
+    <div class="pc-sign">— Ghost Traveller</div>
+    <div class="wax pc-wax" onclick="goTo('s3')">
+      <span>Receive<br>your<br>Postcard</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S3: WHERE ══ -->
+<div class="screen" id="s3">
+  <div class="q-wrap">
+    <div class="q-progress">
+      <div class="q-dot active" id="d1"></div>
+      <div class="q-dot" id="d2"></div>
+      <div class="q-dot" id="d3"></div>
+      <div class="q-dot" id="d4"></div>
+    </div>
+    <div class="q-num">1 — Where</div>
+    <div class="q-title">Where is your Ghost Traveller?</div>
+    <div class="q-sub">Locate them in the world, then zoom in</div>
+    <div class="q-field">
+      <label>City, Country</label>
+      <input id="city" type="text" placeholder="Tromsø, Norway"/>
+    </div>
+    <div class="q-field">
+      <label>A specific place they keep returning to</label>
+      <input id="place" type="text" placeholder="A cafe, a park, a rooftop, a trail…"/>
+    </div>
+    <div class="q-next">
+      <button class="next-btn" onclick="goTo('s4')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S4: WHO ══ -->
+<div class="screen" id="s4">
+  <div class="q-wrap">
+    <div class="q-progress">
+      <div class="q-dot done"></div>
+      <div class="q-dot active"></div>
+      <div class="q-dot"></div>
+      <div class="q-dot"></div>
+    </div>
+    <div class="q-num">2 — Who</div>
+    <div class="q-title">Who is your Ghost?</div>
+    <div class="q-sub">Shape their personality and what they hold onto</div>
+    <div class="q-hint">Pick up to 3 — What do they care about?</div>
+    <div class="q-pills" id="interests">
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Art & museums</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Nightlife</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Street food</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Nature & hiking</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Local culture</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Architecture</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Music</button>
+      <button class="q-pill" onclick="toggle(this,'interests',3)">Adventure sports</button>
+    </div>
+    <div class="q-hint">Pick one — A feeling they never let go of</div>
+    <div class="q-pills" id="feeling">
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">The cold & stillness</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">Warm strangers</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">Being nobody</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">Wild landscapes</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">Street sounds & chaos</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">Slow mornings</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">Walking alone at night</button>
+      <button class="q-pill" onclick="toggle(this,'feeling',1)">The taste of something new</button>
+    </div>
+    <div class="q-next">
+      <button class="next-btn" onclick="goTo('s5')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S5: NEED ══ -->
+<div class="screen" id="s5">
+  <div class="q-wrap">
+    <div class="q-progress">
+      <div class="q-dot done"></div>
+      <div class="q-dot done"></div>
+      <div class="q-dot active"></div>
+      <div class="q-dot"></div>
+    </div>
+    <div class="q-num">3 — What you need</div>
+    <div class="q-title">What do you need to hear right now?</div>
+    <div class="q-sub">Your Ghost has something to tell you</div>
+    <div class="q-hint">Pick one</div>
+    <div class="q-pills" id="need">
+      <button class="q-pill" onclick="toggle(this,'need',1)">Courage to make a change</button>
+      <button class="q-pill" onclick="toggle(this,'need',1)">Permission to slow down</button>
+      <button class="q-pill" onclick="toggle(this,'need',1)">A reminder of who I am</button>
+      <button class="q-pill" onclick="toggle(this,'need',1)">Comfort in uncertainty</button>
+    </div>
+    <div class="q-next">
+      <button class="next-btn" onclick="goTo('s6')">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S6: NAME ══ -->
+<div class="screen" id="s6">
+  <div class="q-wrap">
+    <div class="q-progress">
+      <div class="q-dot done"></div>
+      <div class="q-dot done"></div>
+      <div class="q-dot done"></div>
+      <div class="q-dot active"></div>
+    </div>
+    <div class="q-num">4 — One last thing</div>
+    <div class="q-title">For the postcard address</div>
+    <div class="q-sub">So your Ghost knows who to write to</div>
+    <div class="q-field" style="max-width:340px;">
+      <label>Your name</label>
+      <input id="username" type="text" placeholder="First name or nickname"/>
+    </div>
+    <div class="q-next">
+      <button class="next-btn" onclick="generate()">Generate my postcard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S7: LOADING ══ -->
+<div class="screen" id="s7">
+  <div class="s7-title">Your Ghost Traveller is writing to you…</div>
+  <div class="dots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+  <div class="s7-sub">Somewhere between here and there, the postcard is taking shape</div>
+</div>
+
+<!-- ══ S8: OUTPUT ══ -->
+<div class="screen" id="s8">
+  <div class="s8-label">A postcard from a parallel universe</div>
+  <div class="out-postcard">
+    <div class="out-left">
+      <div class="out-scene">
+        <svg viewBox="0 0 240 320" width="240" height="320" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="rgba(244,236,216,.35)" fill="none" stroke-width=".8">
+            <path d="M20 280 Q60 230 120 210 Q170 195 220 170"/>
+            <path d="M0 260 Q50 240 90 230 Q140 215 190 175 Q210 160 240 145"/>
+            <circle cx="120" cy="70" r="38" stroke-width=".7"/>
+            <path d="M120 32 L120 8 M120 108 L120 132 M82 70 L58 70 M158 70 L182 70"/>
+            <path d="M96 46 L76 26 M144 46 L164 26 M96 94 L76 114 M144 94 L164 114"/>
+            <rect x="82" y="175" width="76" height="96" rx="2" stroke-width=".6"/>
+            <line x1="120" y1="175" x2="120" y2="271"/>
+            <line x1="82" y1="199" x2="158" y2="199"/>
+            <line x1="82" y1="223" x2="158" y2="223"/>
+            <line x1="82" y1="247" x2="158" y2="247"/>
+          </g>
+        </svg>
+      </div>
+      <div class="out-loc" id="out-loc">Tromsø, Norway</div>
+    </div>
+    <div class="out-right">
+      <div class="out-stamps">
+        <div class="out-stamp-c"><span>Ghost<br>Traveller</span></div>
+      </div>
+      <div class="out-from" id="out-from">From your Ghost in Tromsø</div>
+      <div class="out-msg" id="out-msg">Your message will appear here…</div>
+      <div class="out-addr">
+        <div class="out-name" id="out-name">Dear Traveller,</div>
+        <div class="out-lines">
+          <div class="out-line"></div>
+          <div class="out-line"></div>
+          <div class="out-line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s8-actions">
+    <button class="btn-restart" onclick="restart()">Start again</button>
+    <button class="btn-print" onclick="window.print()">Print your postcard</button>
+  </div>
+</div>
+
+<script>
+// ── navigation ──
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── pill toggle ──
+function toggle(btn, groupId, max){
+  const group = document.getElementById(groupId);
+  const sel = group.querySelectorAll('.sel');
+  if(btn.classList.contains('sel')){
+    btn.classList.remove('sel');
+  } else {
+    if(sel.length < max){ btn.classList.add('sel'); }
+    else if(max===1){ sel.forEach(s=>s.classList.remove('sel')); btn.classList.add('sel'); }
+  }
+}
+
+// ── collect form data ──
+function collectData(){
+  const interests = [...document.querySelectorAll('#interests .sel')].map(b=>b.textContent);
+  const feeling   = document.querySelector('#feeling .sel')?.textContent || '';
+  const need      = document.querySelector('#need .sel')?.textContent || '';
+  return {
+    name    : document.getElementById('username').value.trim() || 'Traveller',
+    city    : document.getElementById('city').value.trim()     || 'somewhere far away',
+    place   : document.getElementById('place').value.trim()    || 'a quiet corner',
+    interests,
+    feeling,
+    need
+  };
+}
+
+// ── build LLM prompt ──
+function buildPrompt(d){
+  return `You are the Ghost Traveller — the version of ${d.name} who never stopped travelling. You are currently in ${d.city}, specifically at ${d.place}. You care deeply about: ${d.interests.join(', ') || 'the beauty of travel'}. The feeling you never let go of is: ${d.feeling || 'wanderlust'}. You are writing a postcard to ${d.name} because they need: ${d.need || 'a reminder of who they are'}.
+
+Write a short, poetic postcard message (4–6 sentences, max 90 words). Write in first person as the Ghost. Be intimate, specific to the location and feelings above. Do not be generic. Do not use dashes or bullet points. End with a single line signature: "— Your Ghost". Return ONLY the postcard message, nothing else.`;
+}
+
+// ── generate via Anthropic API ──
+async function generate(){
+  const d = collectData();
+  goTo('s7');
+
+  // update output fields immediately
+  document.getElementById('out-name').textContent  = 'Dear ' + d.name + ',';
+  document.getElementById('out-from').textContent  = 'From your Ghost in ' + d.city;
+  document.getElementById('out-loc').textContent   = d.city;
+
+  // build JSON output object
+  const jsonOutput = {
+    user: { name: d.name },
+    ghost: { city: d.city, place: d.place, interests: d.interests, feeling: d.feeling },
+    need: d.need,
+    prompt_to_llm: buildPrompt(d)
+  };
+  console.log('Ghost Traveller JSON output:', JSON.stringify(jsonOutput, null, 2));
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: buildPrompt(d) }]
+      })
+    });
+    const data = await res.json();
+    const msg = data?.content?.[0]?.text || fallback(d);
+    document.getElementById('out-msg').innerHTML = msg.replace(/\n/g,'<br>');
+  } catch(e) {
+    document.getElementById('out-msg').innerHTML = fallback(d).replace(/\n/g,'<br>');
+  }
+
+  goTo('s8');
+}
+
+// ── fallback message ──
+function fallback(d){
+  const msgs = {
+    'Courage to make a change': `I am writing from ${d.place} in ${d.city}, where the air is sharp and the world feels possible. You already know what needs to change. You knew it before you started asking. The version of you that came here had no map either, and still found something worth keeping.\n\nTrust that. Start there.\n\n— Your Ghost`,
+    'Permission to slow down': `It is quiet here at ${d.place}. I have learned to let time move without chasing it. Nothing broke when I stopped. The world continued, softer.\n\nYou are allowed to breathe. The things waiting for you will still be there.\n\n— Your Ghost`,
+    'A reminder of who I am': `From ${d.place} in ${d.city}, I want you to remember: you were curious before you were careful. You chose the unknown once. That is still in you, unchanged.\n\nI carry it here so you don't have to hold it alone.\n\n— Your Ghost`,
+    'Comfort in uncertainty': `I have been lost in ${d.city} more times than I can count. Each time, something found me. A light, a face, a sound that made sense of the rest.\n\nNot knowing is not failing. You are already in the middle of the answer.\n\n— Your Ghost`
+  };
+  return msgs[d.need] || msgs['Courage to make a change'];
+}
+
+function restart(){
+  document.querySelectorAll('.q-pill').forEach(p=>p.classList.remove('sel'));
+  document.querySelectorAll('input').forEach(i=>i.value='');
+  goTo('s1');
+}
+</script>
+</body>
+</html>

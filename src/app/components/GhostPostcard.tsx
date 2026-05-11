@@ -9,6 +9,8 @@ export interface GhostCardData {
   date?: string;
   /** Optional PNG (data URL or blob URL) of the handwriting-rendered message */
   handwritingImageUrl?: string | null;
+  /** Optional grayscale illustration (data URL) shown on the left side of the postcard */
+  sceneImageUrl?: string | null;
 }
 
 interface Props {
@@ -318,20 +320,49 @@ export default function GhostPostcard({ data, className }: Props) {
       ctx.lineWidth = 2;
       ctx.strokeRect(10, 10, CARD_W - 20, CARD_H - 20);
 
-      drawSignalField(ctx, padding, 80, midX - padding * 2, CARD_H - 180, data.city);
+      const sceneX = 10;
+      const sceneY = 10;
+      const sceneW = midX - 10;
+      const sceneH = CARD_H - 20;
+      if (data.sceneImageUrl) {
+        ctx.save();
+        ctx.fillStyle = '#f5f1e8';
+        ctx.fillRect(sceneX, sceneY, sceneW, sceneH);
+        ctx.restore();
+        const sImg = new Image();
+        sImg.crossOrigin = 'anonymous';
+        sImg.onload = () => {
+          // Cover: fill the whole area, cropping overflow on one axis
+          const scale = Math.max(sceneW / sImg.width, sceneH / sImg.height);
+          const dw = sImg.width * scale;
+          const dh = sImg.height * scale;
+          const dx = sceneX + (sceneW - dw) / 2;
+          const dy = sceneY + (sceneH - dh) / 2;
+          ctx.save();
+          // Clip to the left panel so nothing bleeds across the divider
+          ctx.beginPath();
+          ctx.rect(sceneX, sceneY, sceneW, sceneH);
+          ctx.clip();
+          ctx.drawImage(sImg, dx, dy, dw, dh);
+          ctx.restore();
+        };
+        sImg.onerror = () => {
+          drawSignalField(ctx, sceneX + 18, sceneY + 70, sceneW - 36, sceneH - 160, data.city);
+        };
+        sImg.src = data.sceneImageUrl;
+      } else {
+        drawSignalField(ctx, sceneX + 18, sceneY + 70, sceneW - 36, sceneH - 160, data.city);
+      }
 
       ctx.fillStyle = '#0a0a0a';
-      ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
-      ctx.fillText('SIGNAL ORIGIN:', padding + 6, 42);
-      ctx.font = 'bold 17px sans-serif';
-      ctx.fillText(data.city.toUpperCase(), padding + 6, 64);
 
+      // Coordinates label on the right (below the message area, just right of the divider)
       ctx.font = 'bold 13px sans-serif';
-      ctx.fillText('COORDINATES:', padding + 6, CARD_H - 56);
+      ctx.fillText('COORDINATES:', midX + 30, CARD_H - 56);
       ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(fakeCoords(data.city), padding + 6, CARD_H - 36);
+      ctx.fillText(fakeCoords(data.city), midX + 30, CARD_H - 36);
 
       ctx.strokeStyle = '#0a0a0a';
       ctx.lineWidth = 1.8;

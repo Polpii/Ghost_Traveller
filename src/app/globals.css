@@ -1,10 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f3f3;
-  --foreground: #111111;
-  --ghost-red: #7c1418;
-  --ghost-red-hover: #5e0f12;
+  --background: #EAD9BC;
+  --foreground: #3A1A06;
+  --ghost-bg: #EAD9BC;
+  --ghost-bg-alt: #E8D5B7;
+  --ghost-paper: #F4ECD8;
+  --ghost-ink: #3A1A06;
+  --ghost-sepia: #5C2E0A;
+  --ghost-sepia-soft: #6B4422;
+  --ghost-gold: #9B6E3A;
+  --ghost-gold-light: #B8905A;
+  --ghost-red: #8B1A1A;
+  --ghost-red-deep: #6e1414;
+  --ghost-rule: rgba(155, 110, 58, 0.4);
+  --ghost-rule-soft: rgba(155, 110, 58, 0.22);
 }
 
 @media print {
@@ -23,11 +33,13 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans), 'Segoe UI', Arial, sans-serif;
   --font-serif: var(--font-serif), 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-display: var(--font-display), 'Playfair Display', Georgia, serif;
+  --font-hand: var(--font-hand), 'Klee One', 'Caveat', cursive;
   --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), 'Segoe UI', Arial, sans-serif;
+  background: var(--ghost-bg);
+  color: var(--ghost-ink);
+  font-family: var(--font-hand), 'Klee One', cursive;
 }

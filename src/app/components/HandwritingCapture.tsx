@@ -23,7 +23,17 @@ const ALL_ENGINES: { id: HandwritingEngine; label: string; desc: string }[] = [
   { id: 'diffusionpen', label: 'DiffusionPen', desc: 'Few-shot diffusion (closer style)' },
 ];
 
-const BRAND = '#7c1418';
+const C = {
+  bg: '#EAD9BC',
+  paper: '#F4ECD8',
+  ink: '#3A1A06',
+  sepia: '#5C2E0A',
+  gold: '#9B6E3A',
+  rule: 'rgba(155, 110, 58, 0.4)',
+  ruleSoft: 'rgba(155, 110, 58, 0.22)',
+};
+const FONT_SERIF = "var(--font-serif), 'Cormorant Garamond', Georgia, serif";
+const FONT_HAND = "var(--font-hand), 'Klee One', cursive";
 
 function dataUrlToFile(dataUrl: string, filename: string): File {
   const [meta, base64] = dataUrl.split(',');
@@ -82,12 +92,35 @@ export default function HandwritingCapture({
 
     // Only re-init if size actually changed (avoid wiping mid-stroke)
     if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      // Preserve existing strokes across resize by snapshotting the canvas first
+      let snapshot: HTMLImageElement | null = null;
+      if (canvas.width > 0 && canvas.height > 0) {
+        try {
+          const url = canvas.toDataURL('image/png');
+          snapshot = new Image();
+          snapshot.src = url;
+        } catch {
+          snapshot = null;
+        }
+      }
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, w, h);
+      // Restore previous drawing scaled to the new logical box
+      if (snapshot) {
+        const restore = () => {
+          try {
+            ctx.drawImage(snapshot!, 0, 0, w, h);
+          } catch {
+            // ignore
+          }
+        };
+        if (snapshot.complete && snapshot.naturalWidth > 0) restore();
+        else snapshot.onload = restore;
+      }
     }
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -201,14 +234,14 @@ export default function HandwritingCapture({
   // Always show all engines; disable those that need the HWT service when it's down
   const engineSelector = (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <label htmlFor="engine" style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#78716c', whiteSpace: 'nowrap' }}>
+      <label htmlFor="engine" style={{ fontFamily: FONT_SERIF, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: C.gold, whiteSpace: 'nowrap' }}>
         Engine
       </label>
       <select
         id="engine"
         value={engine}
         onChange={(e) => onEngineChange(e.target.value as HandwritingEngine)}
-        style={{ borderRadius: 8, border: '1px solid #d6d3d1', backgroundColor: '#ffffff', padding: '6px 10px', fontSize: 13, color: '#1c1917', outline: 'none', maxWidth: '60vw' }}
+        style={{ borderRadius: 4, border: `1px solid ${C.rule}`, backgroundColor: C.paper, padding: '6px 10px', fontSize: 13, fontFamily: FONT_HAND, color: C.ink, outline: 'none', maxWidth: '60vw' }}
       >
         {ALL_ENGINES.map((e) => {
           const disabled = !hwtAvailable && e.id !== 'cursive';
@@ -224,14 +257,14 @@ export default function HandwritingCapture({
 
   const uploadBtn = (
     <button type="button" onClick={() => fileInputRef.current?.click()}
-      style={{ backgroundColor: BRAND, color: '#ffffff', fontWeight: 500, fontSize: 13, padding: '7px 18px', borderRadius: 9999, border: 'none', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.12)', whiteSpace: 'nowrap' }}>
+      style={{ backgroundColor: 'transparent', color: C.sepia, fontFamily: FONT_SERIF, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '7px 16px', borderRadius: 4, border: `1px solid ${C.rule}`, cursor: 'pointer', whiteSpace: 'nowrap' }}>
       Upload an image
     </button>
   );
 
   const clearBtn = hasContent ? (
     <button type="button" onClick={clear}
-      style={{ backgroundColor: '#ffffff', color: '#1f1f1f', fontWeight: 500, fontSize: 13, padding: '7px 18px', borderRadius: 9999, border: '1.5px solid #6b6b6b', cursor: 'pointer' }}>
+      style={{ backgroundColor: 'transparent', color: C.sepia, fontFamily: FONT_SERIF, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '7px 16px', borderRadius: 4, border: `1px solid ${C.rule}`, cursor: 'pointer' }}>
       Clear
     </button>
   ) : null;
@@ -257,8 +290,15 @@ export default function HandwritingCapture({
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#ffffff', pointerEvents: 'none' }} />
       )}
       {!hasContent && !uploadedPreview && (
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a8a29e', fontSize: 16, pointerEvents: 'none', userSelect: 'none', textAlign: 'center', padding: '0 16px' }}>
-          Please Write One Sentence by Hand
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: C.gold, pointerEvents: 'none', userSelect: 'none', textAlign: 'center', padding: '0 16px', gap: 6 }}>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', opacity: 0.7 }}>
+            Write one sentence by hand
+          </div>
+          {prompt && (
+            <div style={{ fontFamily: FONT_HAND, fontSize: 16, color: C.sepia, opacity: 0.55 }}>
+              {prompt}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -273,7 +313,7 @@ export default function HandwritingCapture({
           inset: 0,
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#f3f3f3',
+          backgroundColor: C.bg,
           // Use dynamic viewport units when supported to avoid mobile browser-chrome bugs
           height: '100dvh',
           width: '100vw',
@@ -288,17 +328,17 @@ export default function HandwritingCapture({
             justifyContent: 'center',
             gap: 8,
             rowGap: 8,
-            padding: '8px 10px',
-            borderBottom: '1px solid #e7e5e4',
-            backgroundColor: '#f3f3f3',
+            padding: '10px 14px',
+            borderBottom: `1px solid ${C.ruleSoft}`,
+            backgroundColor: C.bg,
             flexShrink: 0,
             flexWrap: 'wrap',
           }}
         >
           {onBack && (
             <button type="button" onClick={onBack}
-              style={{ backgroundColor: '#ffffff', color: '#1f1f1f', fontWeight: 500, fontSize: 13, padding: '7px 14px', borderRadius: 9999, border: '1.5px solid #6b6b6b', cursor: 'pointer' }}>
-              Back
+              style={{ backgroundColor: 'transparent', color: C.gold, fontFamily: FONT_SERIF, fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '7px 10px', border: 'none', cursor: 'pointer' }}>
+              ← Back
             </button>
           )}
           {engineSelector}
@@ -306,7 +346,7 @@ export default function HandwritingCapture({
           {clearBtn}
           {onSend && (
             <button type="button" onClick={onSend} disabled={sendDisabled}
-              style={{ backgroundColor: sendDisabled ? '#b08a8c' : BRAND, color: '#ffffff', fontWeight: 600, fontSize: 14, padding: '8px 22px', borderRadius: 9999, border: 'none', cursor: sendDisabled ? 'not-allowed' : 'pointer', boxShadow: sendDisabled ? 'none' : '0 4px 12px rgba(0,0,0,0.15)', whiteSpace: 'nowrap' }}>
+              style={{ backgroundColor: sendDisabled ? 'rgba(58,26,6,0.35)' : C.ink, color: '#F5E8D0', fontFamily: FONT_SERIF, fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '9px 22px', borderRadius: 4, border: 'none', cursor: sendDisabled ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
               Send
             </button>
           )}
@@ -322,9 +362,9 @@ export default function HandwritingCapture({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 640 }}>
       {prompt && (
-        <p style={{ fontSize: 13, color: '#57534e', textAlign: 'center', margin: 0 }}>
-          <span style={{ fontWeight: 500 }}>Prompted Sentence:</span>{' '}
-          <span style={{ fontStyle: 'italic' }}>{prompt}</span>
+        <p style={{ fontSize: 13, color: C.sepia, textAlign: 'center', margin: 0, fontFamily: FONT_SERIF }}>
+          <span style={{ letterSpacing: '0.16em', textTransform: 'uppercase', fontSize: 10, color: C.gold }}>Prompted sentence</span>{' '}
+          <span style={{ fontFamily: FONT_HAND, fontSize: 16 }}>{prompt}</span>
         </p>
       )}
       {engineSelector}
