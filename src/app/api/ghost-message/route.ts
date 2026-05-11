@@ -63,53 +63,52 @@ export async function POST(req: NextRequest) {
     }
 
     const divergenceContext = divergence
-      ? `You are the version of ${name} who ${divergence.toLowerCase()}. That single fork changed everything that came after.`
+      ? `You are the version of ${name} who ${divergence.toLowerCase()}. That single fork changed everything that came after, and you are still living in its consequences.`
       : `You are a version of ${name} who once made a different choice. That fork changed everything.`;
 
     const replyInstruction = userHandwrittenText
-      ? `${name} wrote to you: "${userHandwrittenText}". Your first line must answer this directly — not abstractly, but as if you just read it.`
+      ? `${name} just wrote to you: "${userHandwrittenText}". Your FIRST body line must answer this note directly and concretely — acknowledge what they said, don't dodge it with metaphor.`
       : '';
 
-    const prompt = `You are the Ghost Traveller.
+    const prompt = `You are the Ghost Traveller — a parallel version of ${name} writing them a short, plain, direct postcard. Not poetic. Not mystical. Just a real note from someone who knows them.
 ${divergenceContext}
-You are writing a short handwritten postcard to ${name} — the version of yourself who did NOT make that choice.
-You know them better than anyone, because you ARE them.
 
-What you know about them:
-- They are in or connected to: ${city}${place ? `, specifically ${place}` : ''}
-- They care about: ${interests.length > 0 ? interests.join(', ') : 'being present in the world'}
-- The feeling they carry: ${sensation || 'a quiet unnamed longing'}
-- What they need to hear right now: ${need || 'that they are still themselves'}
+Facts you MUST use — every single one of these has to appear concretely in the message (not as metaphor):
+- City you are in (Q1): ${city}
+- Specific place you are at (Q2): ${place || city}
+- Things ${name} cares about (Q3): ${interests.length > 0 ? interests.join(', ') : 'small daily things'}
+- Feeling you both carry (Q4): ${sensation || 'a quiet longing'}
+- What ${name} needs to hear (Q5): ${need || 'that they are still themselves'}
+- The divergence: ${divergence || 'a different choice'}
 ${replyInstruction}
 
-Write a postcard message. Format:
-- First line: "Dear ${name},"
-- Then 2 to 3 body lines. Each line: 5 to 9 words. Short. Loaded.
+Format (STRICT — keep it short, it must fit on a postcard):
+- Line 1: "Dear ${name},"
+- Then exactly 3 short body lines. Each line: 8 to 12 words.
 - No sign-off.
-- Total under 180 characters including the greeting.
+- Total length: 180 to 240 characters INCLUDING the greeting. Do not go longer.
 
-What makes this message good:
-- It sounds like it was written by someone who knows ${name} *from the inside*, not an outside observer
-- It is grounded in a specific sensory detail from the place (not just the city name — the feeling of being there)
-- It carries the weight of the divergence: something was found, lost, or changed because of that different choice — without explaining it
-- It answers what ${name} needs, but obliquely — the way a close friend would, not a therapist
-- If replying to their note, the reply must feel earned and direct
-- Tone: intimate, slightly uncanny, present-tense. Like finding your own handwriting on a letter you don't remember sending.
+Content rules:
+1. Line 1 of the body: name where you are (${place || city}) with ONE concrete sensory detail (light, smell, sound, weather). Plain words.
+2. Line 2 of the body: reference at least ONE thing from Q3 (${interests.length > 0 ? interests.join(', ') : 'their interests'}) as something you literally did or saw today, AND name the feeling from Q4 (${sensation || 'the feeling'}) plainly.
+3. Line 3 of the body: directly say what ${name} needs to hear (Q5: ${need || 'the reassurance'}) — like a friend on the phone, no metaphor, no riddle. Mention the divergence in plain language if it fits naturally.
+${userHandwrittenText ? `4. Before everything, your message must answer their note ("${userHandwrittenText}") directly and concretely, not abstractly.` : ''}
 
-Bad examples (too generic, too long, too explanatory):
-  "You are still whole. Morning comes slow, whispering past."
-  "Alone, night wraps you in familiar whispers. You chose differently, but we share the same sky."
-Good examples (short, loaded, uncanny, specific):
-  "Dear Lisa,\nI kept the kitchen. The light here is yours.\nYou would have stayed too."
-  "Dear Nour,\nThe courtyard is the same. But I turned left.\nFind me in the slow hours."
+Tone: warm, plain, direct, slightly wistful. Like a real handwritten postcard from a close friend. Forbidden words: whispers, echoes, shadows, symphonies, untamed, shared sky, woven, eternal, dance, embrace, journey. No similes. No "like a ___".
 
-Output ONLY the message lines, separated by newlines. No quotes, no labels.`;
+Example (city: Lisbon, place: Praça do Comércio, interests: cooking & vinyl records, sensation: nostalgia, need: permission to rest, divergence: stayed in Lisbon):
+Dear Sam,
+I'm sitting at Praça do Comércio. The river is grey today.
+I cooked dinner alone and put on a record — nostalgia again.
+You don't have to keep moving. Rest is allowed. I stayed and I'm okay.
+
+Output ONLY the postcard, starting with "Dear ${name},". No quotes, no labels.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
-      temperature: 0.88,
-      max_tokens: 90,
+      temperature: 0.55,
+      max_tokens: 160,
     });
 
     const message = completion.choices[0]?.message?.content?.trim() ?? '';
